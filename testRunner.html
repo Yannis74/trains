@@ -1,0 +1,40 @@
+
+<!doctype html>
+<html>
+<head>
+  <title>Test'em Runner</title>
+  <script src="jasmine/jasmine.js"></script>
+  <script src="jasmine/jasmine-html.js"></script>
+
+  <link rel="stylesheet" href="jasmine/jasmine.css">
+  </head>
+<body>
+  <div id="jasmine_content"></div>
+  <script src="js/libs/require.js"></script>
+  <script type="text/javascript">
+  requirejs.config({
+      "paths": {
+        "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min"
+      },
+      "shim": {
+          "js/libs/pubsub": ["jquery"]
+      }
+  });
+
+  require(
+        ['jquery','tests/roverTest', "js/libs/pubsub"],
+        function($, roverTest){
+
+          var jasmineEnv = jasmine.getEnv()
+          jasmineEnv.addReporter(new jasmine.HtmlReporter)
+
+            $(window).ready(function(){
+                jasmineEnv.execute();
+            });
+
+
+        }
+  )
+  </script>
+</body>
+</html>
