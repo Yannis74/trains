@@ -74,7 +74,7 @@ define(["jquery"], function($){
             rm.journeys.push(currentList);
 
             if(rm.journeys.length > 4){
-                
+                    console.log(rm.journeys);
                 return;
             }else{
                 rm.findAllRoutes(nextList);
@@ -96,19 +96,19 @@ define(["jquery"], function($){
             var end = journey.charAt(journey.length-1);
             var newJourney = journey + "" + to;
             var journeyEntered = $.inArray(newJourney, nextList) !== -1;
-            /*
- 
-            var start = journey.charAt(0);
-            //if start is in journey twice
-            if(journey.lastIndexOf(start) !== 0)
-             */
+          console.log('test');
             if( (start === to && journeyEntered) ||
-              journeyEntered )
-            {
+              journeyEntered || rm.townInJourney(journey, to)){
+                console.log('no');
                 return;
-            }else{
+            }else if(journey.length > 1 && journey.lastIndexOf(start) === 0){
+                nextList.push(newJourney);
+            }else if(journey.length === 1){
                 nextList.push(newJourney);
             }
+        },
+        townInJourney: function(journey, town){
+            return journey.substr(1).indexOf(town) !== -1;
         },
         getTowns: function(graph){
             var arTowns = [];
