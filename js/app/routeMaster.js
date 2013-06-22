@@ -28,6 +28,8 @@ define(["jquery"], function($){
     var rm = {
         $elInput: $(".trainInput"),
         $elResults: $(".results"),
+        stops: 1,
+        journeys: [],
         init: function(logger){
 
             rm.$elResults.click(function(){
@@ -44,7 +46,7 @@ define(["jquery"], function($){
                 //then create the routeLookup object
                 
                 var artest = rm.setAllpossibleRoutes();
-                console.log(artest);
+                
             });
         },
             //'listen' for when a rover has finished performing it's commands
@@ -69,9 +71,11 @@ define(["jquery"], function($){
                 }
             }
 
-            if(currentList[0].length > 5){
-                console.log(currentList);
-                return currentList;
+            rm.journeys.push(currentList);
+
+            if(rm.journeys.length > 4){
+                
+                return;
             }else{
                 rm.findAllRoutes(nextList);
             }
@@ -90,15 +94,20 @@ define(["jquery"], function($){
             //if the journey has looped then dont log to
             var start = journey.charAt(0);
             var end = journey.charAt(journey.length-1);
+            var newJourney = journey + "" + to;
+            var journeyEntered = $.inArray(newJourney, nextList) !== -1;
             /*
+ 
             var start = journey.charAt(0);
             //if start is in journey twice
             if(journey.lastIndexOf(start) !== 0)
              */
-            if(start === end && journey.length !== 1){
-                nextList.push(journey);
+            if( (start === to && journeyEntered) ||
+              journeyEntered )
+            {
+                return;
             }else{
-                nextList.push(journey + "" + to);
+                nextList.push(newJourney);
             }
         },
         getTowns: function(graph){
