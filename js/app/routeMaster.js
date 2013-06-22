@@ -42,79 +42,64 @@ define(["jquery"], function($){
                 //rm.handleInput();
 
                 //then create the routeLookup object
-                rm.setAllpossibleRoutes();
-                console.log(arRoutes);
-                rm.transposeLists(arRoutes);
+                
+                var artest = rm.setAllpossibleRoutes();
+                console.log(artest);
             });
-            //'listen' for when a rover has finished performing it's commands
-            $.subscribe("roverFinished", rm.startRovers);
         },
+            //'listen' for when a rover has finished performing it's commands
         reset: function(){
-            var i = 0;
-            rm.deployments = [];
-            for(i; rm.rovers[i]; i++){
-                rm.rovers[i].rover.cleanup();
-            }
-
-            rm.rovers = [];
-            rm.roverIndex = -1;
-            rm.marsGrid = null;
         },
         setAllpossibleRoutes: function(){
-            rm.findAllRoutes(rm.getTowns(graph));
+            
+            return rm.findAllRoutes(rm.getTowns(graph));
         },
         findAllRoutes: function(currentList){
+            
             var nextList = [],
+                journey,
                 len = currentList.length,
                 i = 0;
 
             for(i; i < len; i++){
                 if(currentList[i]){
-                    rm.setNewRoutes(i, currentList[i], currentList, nextList);
+                    journey = currentList[i];
+
+                    rm.setNewRoutes(journey, nextList, currentList);
                 }
             }
 
-            arRoutes.push(currentList);
-
-            if(arRoutes.length < 2){
+            if(currentList[0].length > 5){
+                console.log(currentList);
+                return currentList;
+            }else{
                 rm.findAllRoutes(nextList);
             }
 
         },
-        setNewRoutes: function(currentIndex, from, currentList, nextList){
-            var node = graph[from],
+        setNewRoutes: function(journey, nextList, currentList){
+            var from = journey.charAt(journey.length-1)
+                node = graph[from],
                 len = node.length,
                 i = 0;
                 for(i;i<len;i++){
-                    rm.setNewRoute(from, node[i].to, currentList, nextList, currentIndex);
+                    rm.setNewRoute(journey, node[i].to, nextList);
                 }
         },
-        setNewRoute: function(from, to, currentList, nextList, currentIndex){
-            var newIndex = currentList.push(from);
-                newIndex = newIndex - 1;
-                nextList[newIndex] = to;
-                rm.updatePreviousLists(currentIndex, newIndex);
-        },
-        updatePreviousLists: function(currentIndex, newIndex){
-            $.each(arRoutes, function(i, arList){
-                var val = arList[currentIndex];
-                arList[newIndex] = val;
-            });
-        },
-        transposeLists: function(){
-            var allRoutes = [];
-
-            $.each(arRoutes, function(i, arList){
-                for(var y = 0; y < arList.length; y++){
-                    if(typeof allRoutes[y] == "undefined"){
-                        allRoutes[y] = "";
-                    }
-                    allRoutes[y] = allRoutes[y] + arList[y];
-                }
-            });
-
-            console.log(allRoutes);
-
+        setNewRoute: function(journey, to, nextList){
+            //if the journey has looped then dont log to
+            var start = journey.charAt(0);
+            var end = journey.charAt(journey.length-1);
+            /*
+            var start = journey.charAt(0);
+            //if start is in journey twice
+            if(journey.lastIndexOf(start) !== 0)
+             */
+            if(start === end && journey.length !== 1){
+                nextList.push(journey);
+            }else{
+                nextList.push(journey + "" + to);
+            }
         },
         getTowns: function(graph){
             var arTowns = [];
@@ -123,7 +108,6 @@ define(["jquery"], function($){
             }
             return arTowns;
         },
-
         handleInput: function(){
             //gets all inputs from user
             //formats and stores for later use.
